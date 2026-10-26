@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paint Wipe Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:#07070c;overflow:hidden;font-family:"Source Sans 3",system-ui,sans-serif}
+  #wrap{position:fixed;inset:0;overflow:hidden}
+  #stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center;overflow:hidden;background:#000}
+
+  .slide{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .45s ease,visibility .45s;
+    display:flex;flex-direction:column;padding:120px 110px 150px}
+  .slide.active{opacity:1;visibility:visible}
+  .slide.instant{transition:none}
+  .kick{font-size:28px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+  .slide h1{font-size:96px;line-height:1.05;margin:18px 0 34px}
+  .slide p,.slide li{font-size:44px;line-height:1.35}
+  .slide ul{padding-left:52px}
+
+  /* Build A — LESSONS look (navy + gold) */
+  .b-lessons{background:linear-gradient(135deg,#10243e,#1b3658);color:#fff}
+  .b-lessons h1{font-family:"Source Serif 4",Georgia,serif}
+  .b-lessons .kick{color:#c9a24a}
+  .b-lessons .badge{position:absolute;top:44px;right:70px;background:#c9a24a;color:#10243e;font:700 64px "Source Serif 4",serif;padding:6px 26px;border-radius:12px}
+
+  /* Build B — INCLASS look (night purple + pink) */
+  .b-inclass{background:radial-gradient(circle at 20% 10%,#3a1f80 0,transparent 55%),radial-gradient(circle at 85% 90%,#5a0f3a 0,transparent 55%),#0d0a24;color:#fff}
+  .b-inclass h1{font-family:Bungee,Impact,sans-serif;font-weight:400;text-shadow:0 6px 0 #b3123a}
+  .b-inclass .kick{color:#ff4f8b}
+  .b-inclass .card{background:#fffaf0;color:#14161f;border-left:14px solid #ff4f8b;border-radius:18px;padding:30px 40px;margin-top:10px}
+
+  /* Build C — another LESSONS unit (cream + teal) */
+  .b-unit13{background:#f6f1e4;color:#1d2a2a}
+  .b-unit13 h1{font-family:"Source Serif 4",Georgia,serif;color:#0f5f5c}
+  .b-unit13 .kick{color:#b5562e}
+
+  #bar{position:absolute;left:0;right:0;bottom:0;height:96px;display:flex;align-items:center;gap:22px;padding:0 40px;
+    background:rgba(8,10,18,.82);color:#fff;font-size:28px;z-index:5}
+  #bar button{font:700 28px "Source Sans 3",sans-serif;background:#fff;color:#14161f;border:0;border-radius:12px;padding:12px 30px;cursor:pointer}
+  #bar button:focus-visible{outline:4px solid #ffcf4a;outline-offset:3px}
+  #from{flex:1;opacity:.85}
+  #count{min-width:110px;text-align:center;font-weight:700}
+  .note{position:absolute;top:24px;left:40px;z-index:5;font-size:22px;color:rgba(255,255,255,.75);background:rgba(0,0,0,.35);padding:8px 16px;border-radius:999px}
+  .b-unit13 ~ .note{color:#333}
+</style>
+</head>
+<body>
+<div id="wrap"><div id="stage">
+
+  <section class="slide b-lessons" data-build="lessons-g9u3">
+    <span class="badge">p.42</span>
+    <span class="kick">G9 · Unit 3 Food · A1</span>
+    <h1>Food words</h1>
+    <ul><li>Sample slide from build 1</li><li>Next slide is the same build → normal fade</li></ul>
+  </section>
+  <section class="slide b-lessons" data-build="lessons-g9u3">
+    <span class="badge">p.43</span>
+    <span class="kick">G9 · Unit 3 Food · A2</span>
+    <h1>Talking about meals</h1>
+    <ul><li>Last slide from build 1</li><li>Next slide is a different build → paint wipe</li></ul>
+  </section>
+  <section class="slide b-inclass" data-build="inclass-speaking">
+    <span class="kick">In-Class Activity</span>
+    <h1>Speaking Circle</h1>
+    <div class="card"><p>Sample slide from build 2. Press Back to see the wipe run the other way.</p></div>
+  </section>
+  <section class="slide b-inclass" data-build="inclass-speaking">
+    <span class="kick">In-Class Activity</span>
+    <h1>Round 2</h1>
+    <div class="card"><p>Same build again → normal fade.</p></div>
+  </section>
+  <section class="slide b-unit13" data-build="lessons-g10u13">
+    <span class="kick">G10 · Unit 13 Success and fame · D1</span>
+    <h1>Famous for what?</h1>
+    <ul><li>Sample slide from build 3</li><li>Light colours: the label switches to dark ink</li></ul>
+  </section>
+
+  <div class="note">Paint Wipe demo · → / Space / Next</div>
+  <div id="bar">
+    <span id="from"></span>
+    <button id="back">Back</button>
+    <span id="count"></span>
+    <button id="next">Next</button>
+  </div>
+</div></div>
+
+<script src="paint-wipe.js"></script>
+<script>
+(function(){
+  // One entry per source build: its colour (wipe paint) and the label painted mid-transition.
+  var BUILDS = {
+    'lessons-g9u3':     { color:'#10243e', label:'ESL Lessons',         sub:'G9 · Unit 3 Food' },
+    'inclass-speaking': { color:'#3a1f80', label:'In-Class Activities', sub:'Speaking Circle' },
+    'lessons-g10u13':   { color:'#f6f1e4', label:'ESL Lessons',         sub:'G10 · Unit 13 Success and fame' }
+  };
+  var stage = document.getElementById('stage');
+  var slides = [].slice.call(document.querySelectorAll('.slide'));
+  var cur = 0;
+
+  function fit(){ var s = Math.min(innerWidth / 1920, innerHeight / 1080); stage.style.transform = 'translate(-50%,-50%) scale(' + s + ')'; }
+  addEventListener('resize', fit); fit();
+
+  function show(i, instant){
+    slides.forEach(function(s, k){ s.classList.toggle('instant', !!instant); s.classList.toggle('active', k === i); });
+    cur = i;
+    var b = BUILDS[slides[i].dataset.build];
+    document.getElementById('count').textContent = (i + 1) + ' / ' + slides.length;
+    document.getElementById('from').textContent = b.label + ' · ' + b.sub;
+    if (instant) requestAnimationFrame(function(){ slides.forEach(function(s){ s.classList.remove('instant'); }); });
+  }
+
+  // The TEMP rule: paint wipe ONLY when the next slide comes from a different build.
+  function go(i){
+    if (i < 0 || i >= slides.length || i === cur || PaintWipe.busy) return;
+    var a = slides[cur].dataset.build, b = slides[i].dataset.build;
+    if (a === b) return show(i);
+    PaintWipe.run({
+      from: BUILDS[a].color, to: BUILDS[b].color,
+      label: BUILDS[b].label, sub: BUILDS[b].sub,
+      onCover: function(){ show(i, true); }
+    });
+  }
+
+  document.getElementById('next').onclick = function(){ go(cur + 1); };
+  document.getElementById('back').onclick = function(){ go(cur - 1); };
+  addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown'){ e.preventDefault(); go(cur + 1); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp'){ e.preventDefault(); go(cur - 1); }
+  });
+  show(0, true);
+})();
+</script>
+</body>
+</html>

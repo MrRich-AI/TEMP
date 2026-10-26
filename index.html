@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cover Lessons</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#10243e; --night:#0d0a24; --gold:#c9a24a; --pink:#ff4f8b;
+    --ink:#f5f3ee; --muted:#c9c6dc; --card:#fffaf0; --card-ink:#14161f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{min-height:100vh;color:var(--ink);font-family:"Source Sans 3",system-ui,sans-serif;font-size:18px;line-height:1.5;
+    background:radial-gradient(circle at 12% 0%,#1b3658 0,transparent 50%),radial-gradient(circle at 92% 100%,#3a1f80 0,transparent 55%),var(--night);
+    overflow-x:hidden}
+  .wrap{max-width:1080px;margin:0 auto;padding:56px 24px 72px}
+
+  header{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+  .crest{flex:0 0 64px;height:64px;border-radius:50%;border:2px solid var(--gold);display:grid;place-items:center;color:var(--gold);background:rgba(255,255,255,.04)}
+  .crest svg{width:32px;height:32px}
+  .kicker{display:block;font-size:.78rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+  h1{font-family:"Source Serif 4",Georgia,serif;font-size:clamp(2.2rem,5vw,3.4rem);line-height:1.05;letter-spacing:-.01em}
+  .lead{margin-top:18px;max-width:640px;color:var(--muted);font-size:1.1rem}
+  .stripe{height:6px;margin:30px 0 34px;border-radius:999px;background:linear-gradient(90deg,var(--gold) 0 50%,var(--pink) 50% 100%)}
+
+  .how{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:40px}
+  .how div{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:16px 18px}
+  .how div > b{display:block;color:#fff;margin-bottom:2px}
+  .how span b{color:#fff}
+  .how span{color:var(--muted);font-size:.95rem}
+  kbd{font:700 .85rem "Source Sans 3",sans-serif;background:#fff;color:var(--card-ink);border-radius:5px;padding:1px 7px}
+
+  h2{font-family:"Source Serif 4",Georgia,serif;font-size:1.6rem;margin:0 0 14px;display:flex;align-items:center;gap:12px}
+  h2 .pill{font-family:"Source Sans 3",sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.06em;background:rgba(255,255,255,.1);color:var(--muted);padding:3px 10px;border-radius:999px}
+  section{margin-bottom:36px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+
+  .deck{display:flex;flex-direction:column;gap:10px;min-height:170px;padding:20px 20px 18px;border-radius:16px;text-decoration:none;
+    background:var(--card);color:var(--card-ink);border-left:8px solid var(--pink);box-shadow:0 10px 26px rgba(0,0,0,.3);
+    transition:transform .18s ease,box-shadow .18s ease}
+  .deck:hover{transform:translateY(-3px);box-shadow:0 16px 34px rgba(0,0,0,.4)}
+  .deck:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
+  .deck .t{font-family:"Source Serif 4",Georgia,serif;font-weight:700;font-size:1.35rem;line-height:1.2}
+  .deck .meta{font-size:.9rem;color:#4a4d5c}
+  .deck .src{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+  .deck .src span{font-size:.75rem;font-weight:700;padding:3px 9px;border-radius:999px;background:#eef1f7;color:#1b3658}
+  .deck .src span.ic{background:#fde7ef;color:#8a1240}
+
+  .empty{border:2px dashed rgba(255,255,255,.22);border-radius:16px;padding:26px;color:var(--muted);text-align:center}
+  footer{margin-top:40px;font-size:.9rem;color:var(--muted);display:flex;gap:18px;flex-wrap:wrap}
+  footer a{color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="crest" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8l10-5 10 5-10 5-10-5z"/><path d="M6 10v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/><path d="M22 8v6"/></svg></span>
+    <div>
+      <span class="kicker">Mr. Rich · IGCSE ESL · Cover teachers</span>
+      <h1>Cover Lessons</h1>
+    </div>
+  </header>
+  <p class="lead">Ready-to-teach lessons made from slides in <b>ESL Lessons</b> and <b>In-Class Activities</b>. Open the lesson for your class and present it on the board.</p>
+  <div class="stripe"></div>
+
+  <div class="how">
+    <div><b>1 · Open your class's lesson</b><span>Find the grade and class below.</span></div>
+    <div><b>2 · Move through it</b><span><kbd>→</kbd> or <kbd>Space</kbd> next, <kbd>←</kbd> back, or the buttons at the bottom.</span></div>
+    <div><b>3 · Show the answers</b><span>Click an answer to reveal it, or use <b>Reveal all</b>.</span></div>
+  </div>
+
+  <div id="decks"></div>
+
+  <footer>
+    <span>Each lesson keeps the original slides. A paint-brush transition shows when a lesson moves to slides from a different source.</span>
+    <a href="_shared/paint-wipe/demo.html">Preview the transition</a>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   COVER LESSON DECKS — add one entry per combined deck.
+   url:     folder of the deck, e.g. "G9/9a1-food-review/"
+   sources: the builds its slides come from (LESSONS / INCLASS)
+   ============================================================ */
+var DECKS = [
+  // { grade:"G9", title:"Food: review lesson", classes:"9A1, 9A2", minutes:45, url:"G9/food-review/",
+  //   sources:[{repo:"LESSONS", name:"G9 Unit 3 Food"}, {repo:"INCLASS", name:"Speaking circle"}] }
+];
+
+(function(){
+  var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+  var box = document.getElementById('decks');
+  var grades = [['G9','Grade 9'],['G10','Grade 10']];
+  var html = '';
+  grades.forEach(function(g){
+    var list = DECKS.filter(function(d){ return d.grade === g[0]; });
+    html += '<section><h2>' + g[1] + ' <span class="pill">' + list.length + (list.length === 1 ? ' lesson' : ' lessons') + '</span></h2>';
+    if (!list.length){ html += '<div class="empty">No cover lessons for ' + g[1] + ' yet.</div></section>'; return; }
+    html += '<div class="grid">' + list.map(function(d){
+      var meta = [d.classes, d.minutes ? d.minutes + ' min' : ''].filter(Boolean).join(' · ');
+      var src = (d.sources || []).map(function(s){
+        return '<span class="' + (s.repo === 'INCLASS' ? 'ic' : '') + '">' + esc(s.name) + '</span>'; }).join('');
+      return '<a class="deck" href="' + esc(d.url) + '"><span class="t">' + esc(d.title) + '</span>' +
+        (meta ? '<span class="meta">' + esc(meta) + '</span>' : '') + '<span class="src">' + src + '</span></a>';
+    }).join('') + '</div></section>';
+  });
+  box.innerHTML = html;
+})();
+</script>
+</body>
+</html>
