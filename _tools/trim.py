@@ -14,13 +14,20 @@ src, out, titles = sys.argv[1], sys.argv[2], sys.argv[3:]
 html = open(src, encoding='utf-8').read()
 last = max(m.start() for m in re.finditer(r'<section class="slide', html))
 pos = html.index('<script', last)
-js = """<script>
+js = r"""<script>
 /* ===== TEMP cover deck copy: only these slides, in this order (see TEMP/_tools/trim.py) ===== */
 (function(){
   var KEEP = %s;
   var park = document.createElement('div'); park.id = 'tempParked'; park.style.display = 'none';
   document.body.appendChild(park);
   function title(s){ return s.dataset.title || s.dataset.t || ''; }
+  /* scripts for set-aside slides still run: inside the hidden box, closest('.slide') finds the set-aside slide */
+  var closest = Element.prototype.closest;
+  Element.prototype.closest = function(sel){
+    var r = closest.call(this, sel);
+    if (r === null && /\.slide\b/.test(sel) && park.contains(this)) r = closest.call(this, '.tempParkedSlide');
+    return r;
+  };
   function setAside(s){ s.classList.remove('slide'); s.classList.add('tempParkedSlide'); park.appendChild(s); }
   function tidy(){
     var all = [].slice.call(document.querySelectorAll('section.slide')), k = 0;

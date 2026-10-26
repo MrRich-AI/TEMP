@@ -1443,6 +1443,13 @@ body.presenter #pvUI{display:block;font-family:"Mulish","Segoe UI",sans-serif;co
   var park = document.createElement('div'); park.id = 'tempParked'; park.style.display = 'none';
   document.body.appendChild(park);
   function title(s){ return s.dataset.title || s.dataset.t || ''; }
+  /* scripts for set-aside slides still run: inside the hidden box, closest('.slide') finds the set-aside slide */
+  var closest = Element.prototype.closest;
+  Element.prototype.closest = function(sel){
+    var r = closest.call(this, sel);
+    if (r === null && /\.slide\b/.test(sel) && park.contains(this)) r = closest.call(this, '.tempParkedSlide');
+    return r;
+  };
   function setAside(s){ s.classList.remove('slide'); s.classList.add('tempParkedSlide'); park.appendChild(s); }
   function tidy(){
     var all = [].slice.call(document.querySelectorAll('section.slide')), k = 0;
