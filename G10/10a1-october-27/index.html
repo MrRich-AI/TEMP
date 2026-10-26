@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>10A1 October 27</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@600;700;800&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* Cover deck player: each source build runs untouched in its own frame;
+   this page only keeps to the chosen slides and runs the paint wipe between builds. */
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1b2326}
+.bf{position:fixed;inset:0;width:100%;height:100%;border:0;visibility:hidden;background:#1b2326}
+.bf.on{visibility:visible}
+#loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#8ecbd3;font:700 28px "Mulish","Segoe UI",Arial,sans-serif;letter-spacing:.5px}
+#loading.gone{display:none}
+
+/* Deck contents — same look as the LESSONS Contents window */
+#toc{position:fixed;inset:0;z-index:50;display:none;background:rgba(10,30,34,.55)}
+#toc.open{display:block}
+#tocStage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:0 0;display:flex;align-items:center;justify-content:center;font-family:"Mulish","Avenir Next","Segoe UI",Arial,sans-serif;color:#1d1d1f}
+#toc .panel{background:#fff;border-radius:22px;width:1180px;height:880px;display:flex;flex-direction:column;padding:34px 40px 30px 50px;box-shadow:0 30px 80px rgba(0,0,0,.35);border-top:14px solid #0a8b99;box-sizing:border-box}
+#toc h2{margin:0 0 20px;font-size:50px;color:#0a8b99;display:flex;justify-content:space-between;align-items:center}
+#toc .x{font-family:inherit;font-size:28px;font-weight:800;border-radius:14px;padding:14px 28px;cursor:pointer;background:#fff;color:#06707c;border:3px solid #0a8b99}
+#toc ol{list-style:none;margin:0;padding:0 14px 0 0;flex:1;min-height:0;overflow-y:auto;scrollbar-color:#0a8b99 #e7f4f6;overscroll-behavior:contain}
+#toc ol::-webkit-scrollbar{width:18px}
+#toc ol::-webkit-scrollbar-track{background:#e7f4f6;border-radius:9px}
+#toc ol::-webkit-scrollbar-thumb{background:#0a8b99;border-radius:9px}
+#toc li.hd{font-size:22px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#6b7378;padding:14px 18px 4px;cursor:default}
+#toc li.hd:hover{background:none}
+#toc li.hd .ic{color:#c2367a}
+#toc li{display:flex;align-items:center;gap:22px;font-size:30px;padding:12px 18px;border-radius:12px;cursor:pointer;font-weight:700}
+#toc li:hover{background:#e7f4f6}
+#toc li.cur{background:#0a8b99;color:#fff}
+#toc li .num{width:54px;height:54px;border-radius:50%;background:#e7f4f6;color:#06707c;display:flex;align-items:center;justify-content:center;font-weight:800;flex:none}
+#toc li.cur .num{background:#fff}
+#toc li .pg{margin-left:auto;font-size:26px;opacity:.75;white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="loading">Loading…</div>
+<div id="toc"><div id="tocStage"><div class="panel">
+  <h2>Contents <button class="x" id="tocClose">✕ Close</button></h2>
+  <ol id="tocList"></ol>
+</div></div></div>
+
+<script src="../../_shared/paint-wipe/paint-wipe.js"></script>
+<script>
+(function(){
+  'use strict';
+
+  /* ===== The deck: source builds and the slides taken from each, in teaching order =====
+     n = slide number in the build's own (teacher) counter; title = that slide's title,
+     used first so the deck still finds the slide if the source build is renumbered. */
+  var BUILDS = {
+    exam: { src:'../../../LESSONS/G10/unit-13-success-and-fame-exam/',
+            color:'#ffffff', label:'ESL Lessons', sub:'G10 · Unit 13 · Exam-style question' },
+    rvw:  { src:'../../../INCLASS/TEST-REVIEW/G10/unit-13-success-and-fame/',
+            color:'#ffffff', label:'In-Class Activities', sub:'Unit 13 Test Review: Reading', inclass:true },
+    secd: { src:'../../../LESSONS/G10/unit-13-success-and-fame-section-d/',
+            color:'#ffffff', label:'ESL Lessons', sub:'G10 · Unit 13 · Section D' }
+  };
+  var DECK = [
+    { b:'exam', n:1,  title:'The Bumblebee Challenge' },
+    { b:'exam', n:2,  title:'The Bumblebee Challenge — the world record' },
+    { b:'exam', n:3,  title:'Exam-style question: Text 13.3 (paragraphs 1–2)' },
+    { b:'exam', n:4,  title:'Exam-style question: Text 13.3 (paragraphs 3–4)' },
+    { b:'exam', n:5,  title:'Exam-style question: Text 13.3 (paragraph 5)' },
+    { b:'exam', n:6,  title:'Reading tip: how many notes?' },
+    { b:'exam', n:7,  title:'Exam-style question: complete the notes' },
+    { b:'exam', n:8,  title:'Exam-style Quiz Show' },
+    { b:'rvw',  n:1,  title:'Page 1: Reading exercise – Article (paragraphs 1–2)' },
+    { b:'rvw',  n:2,  title:'Page 1: Reading exercise – Article (paragraphs 3–4)' },
+    { b:'rvw',  n:3,  title:'Page 2: Notes – Alexandra’s advice about writing poetry' },
+    { b:'rvw',  n:4,  title:'Page 2: Notes – How Alexandra promotes poetry' },
+    { b:'secd', n:23, title:'Language focus 2: Fill the gaps in the extracts' },
+    { b:'secd', n:29, title:'Section D Quiz' }
+  ];
+
+  var pos = 0, active = null, order = [];
+  Object.keys(BUILDS).forEach(function(k){ BUILDS[k].key = k; order.push(k); });
+
+  /* ---------- frames ---------- */
+  Object.keys(BUILDS).forEach(function(k){
+    var B = BUILDS[k];
+    B.frame = document.createElement('iframe');
+    B.frame.className = 'bf';
+    B.frame.title = B.label + ' · ' + B.sub;
+    B.frame.setAttribute('allow', 'autoplay; fullscreen');
+    B.ready = new Promise(function(res){
+      B.frame.addEventListener('load', function(){ hook(B); res(B); }, { once:true });
+    });
+    B.frame.src = B.src;
+    document.body.insertBefore(B.frame, document.getElementById('toc'));
+  });
+
+  function wipeBusy(){ return !!(window.PaintWipe && PaintWipe.busy); }
+  function tocOpen(){ return toc.classList.contains('open'); }
+
+  /* ---------- hook a loaded build (same origin: the frame's own engine stays untouched) ---------- */
+  function hook(B){
+    var w = B.frame.contentWindow, d = w.document;
+    B.w = w; B.d = d;
+    B.slides = [].slice.call(d.querySelectorAll('#stage section.slide'));
+    B.cur = function(){ return B.slides.indexOf(d.querySelector('#stage section.slide.active')); };
+    DECK.forEach(function(e){
+      if (e.b !== B.key) return;
+      var i = -1;
+      B.slides.some(function(s, k){ if ((s.dataset.title || s.dataset.t) === e.title){ i = k; return true; } });
+      if (i < 0){ i = e.n - 1; console.warn('[cover deck] "' + e.title + '" not found in ' + B.src + ' — using slide ' + e.n); }
+      e.idx = i;
+    });
+    B.last = B.cur();
+
+    /* the build changed slide by itself (Next/Back, REV, keys): keep to the deck's slides */
+    var moSlide = new MutationObserver(function(){
+      var i = B.cur();
+      if (i < 0 || i === B.last) return;
+      var from = B.last; B.last = i;
+      if (B === active) moved(B, from, i);
+    });
+    B.slides.forEach(function(s){ moSlide.observe(s, { attributes:true, attributeFilter:['class'] }); });
+
+    /* any DOM change while a key is handled = the build used the key (reveal, step, game…) */
+    var mut = false, keyIdx = -1, keyDir = 0;
+    var moAll = new MutationObserver(function(){ mut = true; });
+    moAll.observe(d.documentElement, { subtree:true, attributes:true, childList:true, characterData:true });
+    function dirOf(e){
+      if (e.ctrlKey || e.metaKey || e.altKey) return 0;
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') return 1;
+      if (e.key === 'ArrowLeft' || e.key === 'PageUp') return -1;
+      return 0;
+    }
+    w.addEventListener('keydown', function(e){
+      keyDir = 0;
+      if (wipeBusy()){ e.preventDefault(); e.stopImmediatePropagation(); return; }
+      if (tocOpen()){ if (e.key === 'Escape') closeToc(); e.preventDefault(); e.stopImmediatePropagation(); return; }
+      var t = e.target;
+      if (t && t.closest && t.closest('input,textarea,select,[contenteditable]')) return;
+      keyDir = dirOf(e);
+      if (keyDir){ moAll.takeRecords(); mut = false; keyIdx = B.cur(); }
+    }, true);
+    w.addEventListener('keyup', function(e){ if (wipeBusy()){ e.preventDefault(); e.stopImmediatePropagation(); } }, true);
+    w.addEventListener('keypress', function(e){ if (wipeBusy()){ e.preventDefault(); e.stopImmediatePropagation(); } }, true);
+    /* last listener of the key: the build did nothing and it is at its own first/last slide → next build */
+    w.addEventListener('keydown', function(e){
+      var dir = keyDir; keyDir = 0;
+      if (!dir || B !== active) return;
+      if (moAll.takeRecords().length) mut = true;
+      if (mut || B.cur() !== keyIdx) return;
+      if (dir > 0 ? keyIdx !== B.slides.length - 1 : keyIdx !== 0) return;
+      if (overlayOn(B)) return;
+      step(dir);
+    });
+
+    /* clicks: Contents opens the whole deck's contents; Next/Back at the build's own end go on to the next build */
+    w.addEventListener('click', function(e){
+      if (wipeBusy() && e.isTrusted){ e.preventDefault(); e.stopImmediatePropagation(); return; }
+      var t = e.target && e.target.closest && e.target.closest('#contentsBtn,#nextBtn,#prevBtn');
+      if (!t || B !== active || B.ownToc) return;
+      if (t.id === 'contentsBtn'){ e.preventDefault(); e.stopImmediatePropagation(); openToc(); return; }
+      var dir = t.id === 'nextBtn' ? 1 : -1, i = B.cur();
+      if (dir > 0 ? i === B.slides.length - 1 : i === 0){ e.preventDefault(); e.stopImmediatePropagation(); step(dir); }
+    }, true);
+
+    /* keep the bottom bar on the deck's numbers */
+    ['counter', 'prevBtn', 'nextBtn'].forEach(function(id){
+      var el = d.getElementById(id); if (!el) return;
+      new MutationObserver(function(){ if (B === active) sync(); })
+        .observe(el, { attributes:true, attributeFilter:['disabled'], childList:true, characterData:true, subtree:true });
+    });
+  }
+
+  function overlayOn(B){
+    var d = B.d;
+    try { if (B.w.gamify && B.w.gamify.isOn()) return true; } catch (x) {}
+    if (d.getElementById('startGate')) return true;
+    var c = d.getElementById('contents'); if (c && c.classList.contains('open')) return true;
+    return !!d.querySelector('.lxScreen.on,#blackout.on,#whiteout.on,#zoomLayer.on');
+  }
+
+  /* jump a build to one of its slides through its own Contents list (= the build's own go) */
+  function jump(B, idx){
+    if (B.cur() === idx) return;
+    B.last = idx;
+    var d = B.d, li = d.querySelectorAll('#contentsList li')[idx];
+    if (!li){
+      /* some builds fill their Contents list only when it is opened: open it once (the list item closes it) */
+      B.ownToc = true; d.getElementById('contentsBtn').click(); B.ownToc = false;
+      li = d.querySelectorAll('#contentsList li')[idx];
+    }
+    if (li) li.click();
+  }
+
+  function releaseGate(B){
+    var g = B.d.getElementById('startGate');
+    if (g) g.click();
+  }
+
+  /* deck position of slide idx of build B (nearest to where we are) */
+  function findPos(B, idx){
+    var best = -1;
+    DECK.forEach(function(e, p){
+      if (e.b === B.key && e.idx === idx && (best < 0 || Math.abs(p - pos) < Math.abs(best - pos))) best = p;
+    });
+    return best;
+  }
+
+  function moved(B, from, to){
+    var p = findPos(B, to);
+    if (p >= 0){ pos = p; sync(); return; }
+    var t = pos + (to > from ? 1 : -1);
+    if (t < 0 || t >= DECK.length){ jump(B, from); sync(); return; }
+    if (DECK[t].b === B.key){ jump(B, DECK[t].idx); pos = t; sync(); return; }
+    jump(B, from); sync(); goTo(t);
+  }
+
+  function step(dir){ goTo(pos + dir); }
+
+  function goTo(p){
+    if (p < 0 || p >= DECK.length || wipeBusy()) return;
+    var e = DECK[p], B = BUILDS[e.b];
+    if (B === active){ jump(B, e.idx); pos = p; sync(); return; }
+    var A = active;
+    PaintWipe.run({
+      from: A.color, to: B.color, label: B.label, sub: B.sub,
+      onCover: function(){
+        return B.ready.then(function(){
+          releaseGate(B);
+          pos = p; show(B);
+          jump(B, e.idx);
+          sync();
+        });
+      }
+    }).then(function(){ focusActive(); });
+  }
+
+  function show(B){
+    active = B;
+    order.forEach(function(k){ BUILDS[k].frame.classList.toggle('on', BUILDS[k] === B); });
+    focusActive();
+  }
+  function focusActive(){ try { active.frame.focus(); active.w.focus(); } catch (x) {} }
+
+  function sync(){
+    var B = active; if (!B || !B.d) return;
+    var d = B.d, c = d.getElementById('counter'), txt = (pos + 1) + ' / ' + DECK.length;
+    if (c && c.textContent !== txt) c.textContent = txt;
+    var pb = d.getElementById('prevBtn'), nb = d.getElementById('nextBtn');
+    if (pb && pb.disabled !== (pos === 0)) pb.disabled = pos === 0;
+    if (nb && nb.disabled !== (pos === DECK.length - 1)) nb.disabled = pos === DECK.length - 1;
+  }
+
+  /* ---------- deck contents ---------- */
+  var toc = document.getElementById('toc'), tocList = document.getElementById('tocList'), tocStage = document.getElementById('tocStage');
+  function fit(){ var s = Math.min(innerWidth / 1920, innerHeight / 1080); tocStage.style.transform = 'scale(' + s + ') translate(-50%,-50%)'; }
+  addEventListener('resize', fit); fit();
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); }
+  function openToc(){
+    tocList.innerHTML = '';
+    var prev = null;
+    DECK.forEach(function(e, p){
+      var B = BUILDS[e.b];
+      if (e.b !== prev){
+        var h = document.createElement('li'); h.className = 'hd';
+        h.innerHTML = '<span' + (B.inclass ? ' class="ic"' : '') + '>' + esc(B.label + ' · ' + B.sub) + '</span>';
+        tocList.appendChild(h); prev = e.b;
+      }
+      var s = B.slides && B.slides[e.idx], pg = s && s.dataset.page;
+      var li = document.createElement('li'); if (p === pos) li.className = 'cur';
+      li.innerHTML = '<span class="num">' + (p + 1) + '</span><span>' + esc(e.title) + '</span><span class="pg">' +
+        (pg && !B.inclass ? 'p. ' + esc(pg) : '') + '</span>';
+      li.onclick = function(){ closeToc(); goTo(p); };
+      tocList.appendChild(li);
+    });
+    toc.classList.add('open');
+    var c = tocList.querySelector('li.cur'); if (c) c.scrollIntoView({ block:'center' });
+  }
+  function closeToc(){ toc.classList.remove('open'); focusActive(); }
+  document.getElementById('tocClose').onclick = closeToc;
+  toc.addEventListener('click', function(e){ if (e.target === toc || e.target === tocStage) closeToc(); });
+
+  /* keys that land on this page (focus outside the frame): hand them to the build */
+  addEventListener('keydown', function(e){
+    if (wipeBusy()) return;
+    if (tocOpen()){ if (e.key === 'Escape') closeToc(); e.preventDefault(); return; }
+    if (!active || !active.d) return;
+    e.preventDefault();
+    focusActive();
+    var t = active.d.activeElement || active.d.body;
+    t.dispatchEvent(new active.w.KeyboardEvent('keydown', { key:e.key, code:e.code, shiftKey:e.shiftKey, bubbles:true, cancelable:true }));
+  });
+
+  /* the paint-wipe label font, ready before the first wipe */
+  try { document.fonts.load('700 40px "Source Serif 4"'); document.fonts.load('600 40px "Source Serif 4"'); } catch (x) {}
+
+  /* start: the first build shows its own first screen */
+  BUILDS[DECK[0].b].ready.then(function(B){
+    document.getElementById('loading').classList.add('gone');
+    pos = 0; show(B); jump(B, DECK[0].idx); sync();
+  });
+})();
+</script>
+</body>
+</html>

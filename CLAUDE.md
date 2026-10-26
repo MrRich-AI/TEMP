@@ -60,8 +60,11 @@ Ready-to-teach decks for **cover teachers**, made by combining specific slides f
 2. Each source build (repo + unit/activity) and the exact slides from it (slide number + title), in teaching order.
 3. Anything unclear about which slide is meant — never guess.
 
-## Open decision (settle on the first deck)
-- How each source build's engine is carried into the combined deck (e.g. one player page that loads each source build and jumps to the chosen slides, vs. copying slides and their engine into one file). Ask Richard, then record the decision here.
+## How a deck carries the source builds (decided on the first deck)
+- **Player page, not copies.** Each deck's `index.html` is a small player that loads every source build from the live site in its own full-screen frame (`../../../LESSONS/…`, `../../../INCLASS/…`; same origin on GitHub Pages) and shows only the chosen slides. The builds run untouched, so every engine, tool and fix in the source repo comes through automatically. Needs internet; test locally by serving LESSONS, INCLASS and TEMP side by side (e.g. `python3 -m http.server` over a folder with the three repos as `LESSONS/`, `INCLASS/`, `TEMP/`).
+- Copy the player from the latest deck (first: `G10/10a1-october-27/`) and change only its `BUILDS` (src, colour, label, sub; `inclass:true` for INCLASS) and `DECK` lists (build, slide number in the build's teacher counter, slide title — the title is matched first, the number is the fallback).
+- What the player does on top of the builds: keeps Next/Back/keys/REV to the deck's slides (a move onto a slide not in the deck goes to the next deck slide; at a build's own first/last slide it moves to the next build), runs the paint wipe between builds, shows the deck's numbers in each build's counter, opens one Contents for the whole deck (grouped by build), and opens each later build past its first-screen gate. It jumps through each build's own Contents list (`#contentsList li`).
+- Not carried across builds: presenter view (P) follows only the build it was opened from.
 
 ## Checking (before delivering)
 - Render at 1920×1080. Step through every slide forward and back: each build-to-build change runs the paint wipe, same-build changes don't, nothing can be clicked mid-wipe.
