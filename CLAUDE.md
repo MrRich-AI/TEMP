@@ -10,8 +10,9 @@ Ready-to-teach decks for **cover teachers**, made by combining specific slides f
 
 ## Repo layout
 - `index.html` — landing page. Every new deck gets an entry in its `DECKS` array (grade, title, classes, minutes, url, sources).
-- `G9/<deck-slug>/index.html`, `G10/<deck-slug>/index.html` — one folder per combined deck (lowercase, hyphenated, e.g. `G9/food-review/`).
+- `G9/<deck-slug>/`, `G10/<deck-slug>/` — one folder per combined deck (lowercase, hyphenated, e.g. `G9/food-review/`): `index.html` (the player) + the copied source builds.
 - `_shared/paint-wipe/paint-wipe.js` — the transition (shared by every deck). `demo.html` shows it stand-alone.
+- `_tools/trim.py` — makes a deck's copy of a source build with only the chosen slides, in order.
 - Classes: G9 = 9A1, 9A2, 9A3; G10 = 10A1.
 
 ## Core files (already in the repo — reuse, don't rebuild)
@@ -60,11 +61,12 @@ Ready-to-teach decks for **cover teachers**, made by combining specific slides f
 2. Each source build (repo + unit/activity) and the exact slides from it (slide number + title), in teaching order.
 3. Anything unclear about which slide is meant — never guess.
 
-## How a deck carries the source builds (decided on the first deck)
-- **Player page, not copies.** Each deck's `index.html` is a small player that loads every source build from the live site in its own full-screen frame (`../../../LESSONS/…`, `../../../INCLASS/…`; same origin on GitHub Pages) and shows only the chosen slides. The builds run untouched, so every engine, tool and fix in the source repo comes through automatically. Needs internet; test locally by serving LESSONS, INCLASS and TEMP side by side (e.g. `python3 -m http.server` over a folder with the three repos as `LESSONS/`, `INCLASS/`, `TEMP/`).
-- Copy the player from the latest deck (latest: `G9/9a2-october-27/`) and change only its `BUILDS` (src, colour, label, sub; `inclass:true` for INCLASS; `noOpenBook:true` to skip that build's own "Open your book" transition — e.g. a warmer taught after the book slides; the O key still plays it) and `DECK` lists (build, slide number in the build's teacher counter, slide title — the title is matched first, the number is the fallback).
-- What the player does on top of the builds: keeps Next/Back/keys/REV to the deck's slides (a move onto a slide not in the deck goes to the next deck slide; at a build's own first/last slide it moves to the next build), runs the paint wipe between builds, shows the deck's numbers in each build's counter, opens one Contents for the whole deck (grouped by build), and opens each later build past its first-screen gate. At the deck's first/last slide, a key or blank click that would only take the build onto a slide outside the deck (judged by the build's Reveal all / Hide all button) does nothing, so the slide doesn't replay its entry animation. A quiz's end screen swallows Space/→ before the player sees them (harmless in the source build, where the quiz is the last slide): when a finished quiz is a build's last slide, the player moves on to the next build on the key's release — but not on the press that finished the quiz, so the score screen stays up. Keep the player code the same in every deck; only `BUILDS`, `DECK` and the `<title>` differ. It jumps through each build's own Contents list (`#contentsList li`).
-- Not carried across builds: presenter view (P) follows only the build it was opened from.
+## How a deck carries the source builds (copies, not live pages)
+- **Copies in the deck folder.** Each deck folder holds a copy of every source build it uses, taken from that repo's latest `main` (e.g. `G10/10a1-october-27/exam.html`, `test-review.html`, `section-d.html`), plus `index.html`, a small player. Nothing is loaded from the LESSONS / INCLASS sites at teaching time. (Decks loading the live builds were tried first and dropped: too slow and fragile.)
+- **One part per run of slides from the same build, in teaching order.** All slides of a build → copy the file as it is. Some slides, or a different order → `python3 _tools/trim.py SOURCE.html OUT.html "Title 1" "Title 2" …` (titles = the build's `data-title` / `data-t`). The copy is the source file unchanged plus one small script that sets every other slide aside (also slides the build adds while loading, e.g. "Words from today") before the build's engine starts, so the build runs only the chosen slides, in that order, with its own engine, tools, reveals, games and quiz.
+- **Player:** copy `index.html` from the latest deck and change only its `PARTS` list (`src`, `n` = number of slides, `color`, `label`, `sub`) and `<title>`. Each part runs in its own full-screen frame. The player: moves to the next / previous part when Next / Back / keys are used at a part's own last / first slide (also Space / → on a finished quiz's end screen, but not the press that finished it, so the score stays up), runs the paint wipe between parts, shows deck numbers in each part's counter and keeps Next / Back usable at a part's ends. Contents lists the current part's slides.
+- To pick up a fix made in a source build, re-copy (or re-trim) that file.
+- Presenter view (P) shows only the part it was opened from.
 
 ## Checking (before delivering)
 - Render at 1920×1080. Step through every slide forward and back: each build-to-build change runs the paint wipe, same-build changes don't, nothing can be clicked mid-wipe.
