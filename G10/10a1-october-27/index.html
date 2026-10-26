@@ -116,7 +116,8 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1b2326}
 
     /* the build changed slide by itself (Next/Back, REV, keys): keep to the deck's slides */
     var moSlide = new MutationObserver(function(){
-      var i = B.cur();
+      var i = B.cur(), qd = i >= 0 && B.slides[i].classList.contains('qz-done');
+      B.qzDoneAt = qd ? (B.qzDoneAt || Date.now()) : 0;          // when the quiz end screen appeared
       if (i < 0 || i === B.last) return;
       var from = B.last; B.last = i;
       if (B === active) moved(B, from, i);
@@ -124,7 +125,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1b2326}
     B.slides.forEach(function(s){ moSlide.observe(s, { attributes:true, attributeFilter:['class'] }); });
 
     /* any DOM change while a key is handled = the build used the key (reveal, step, game…) */
-    var mut = false, keyIdx = -1, keyDir = 0;
+    var mut = false, keyIdx = -1, keyDir = 0, sawDown = false;
     var moAll = new MutationObserver(function(){ mut = true; });
     moAll.observe(d.documentElement, { subtree:true, attributes:true, childList:true, characterData:true });
     function dirOf(e){
@@ -134,15 +135,25 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1b2326}
       return 0;
     }
     w.addEventListener('keydown', function(e){
-      keyDir = 0;
+      keyDir = 0; sawDown = true;
       if (wipeBusy()){ e.preventDefault(); e.stopImmediatePropagation(); return; }
       if (tocOpen()){ if (e.key === 'Escape') closeToc(); e.preventDefault(); e.stopImmediatePropagation(); return; }
       var t = e.target;
       if (t && t.closest && t.closest('input,textarea,select,[contenteditable]')) return;
       keyDir = dirOf(e);
+      if (keyDir && atDeckEdge(B, keyDir)){ keyDir = 0; e.preventDefault(); e.stopImmediatePropagation(); return; }
       if (keyDir){ moAll.takeRecords(); mut = false; keyIdx = B.cur(); }
     }, true);
-    w.addEventListener('keyup', function(e){ if (wipeBusy()){ e.preventDefault(); e.stopImmediatePropagation(); } }, true);
+    /* a forward key the build swallowed before this player saw it (the quiz end screen does this — harmless in the
+       build, where the quiz is the last slide): on a finished quiz at the build's last slide, go on to the next build */
+    w.addEventListener('keyup', function(e){
+      var saw = sawDown; sawDown = false;
+      if (wipeBusy()){ e.preventDefault(); e.stopImmediatePropagation(); return; }
+      if (saw || B !== active || tocOpen() || dirOf(e) <= 0) return;
+      var i = B.cur();
+      /* not the press that finished the quiz (its end screen appeared during that press) */
+      if (i === B.slides.length - 1 && B.qzDoneAt && Date.now() - B.qzDoneAt > 1000 && !overlayOn(B)) step(1);
+    }, true);
     w.addEventListener('keypress', function(e){ if (wipeBusy()){ e.preventDefault(); e.stopImmediatePropagation(); } }, true);
     /* last listener of the key: the build did nothing and it is at its own first/last slide → next build */
     w.addEventListener('keydown', function(e){
@@ -159,11 +170,28 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1b2326}
     w.addEventListener('click', function(e){
       if (wipeBusy() && e.isTrusted){ e.preventDefault(); e.stopImmediatePropagation(); return; }
       var t = e.target && e.target.closest && e.target.closest('#contentsBtn,#nextBtn,#prevBtn');
+      /* a blank click on the deck's last slide with nothing left to reveal: nowhere to go */
+      if (!t && e.isTrusted && B === active && e.target.closest && e.target.closest('#stage section.slide.active') &&
+          !e.target.closest('button,a,input,textarea,select,label,[data-step],.ans,.rv,.clk,.dchip,.slot,.zone,.bank,.clue,.sorter,.pn') &&
+          atDeckEdge(B, 1)){ e.preventDefault(); e.stopImmediatePropagation(); return; }
       if (!t || B !== active || B.ownToc) return;
       if (t.id === 'contentsBtn'){ e.preventDefault(); e.stopImmediatePropagation(); openToc(); return; }
       var dir = t.id === 'nextBtn' ? 1 : -1, i = B.cur();
       if (dir > 0 ? i === B.slides.length - 1 : i === 0){ e.preventDefault(); e.stopImmediatePropagation(); step(dir); }
     }, true);
+
+    /* noOpenBook: skip the build's own "Open your book" transition when it starts by itself (the O key still plays it) */
+    var br = d.getElementById('bridge'), oKey = false;
+    if (B.noOpenBook && br){
+      w.addEventListener('keydown', function(e){ if (e.key === 'o' || e.key === 'O'){ oKey = true; setTimeout(function(){ oKey = false; }, 0); } }, true);
+      var playing = false;
+      new MutationObserver(function(){
+        var on = br.classList.contains('play');
+        if (on === playing) return;
+        playing = on;
+        if (on && !oKey && typeof br.onclick === 'function'){ br.onclick(); br.classList.remove('play', 'out'); }
+      }).observe(br, { attributes:true, attributeFilter:['class'] });
+    }
 
     /* keep the bottom bar on the deck's numbers */
     ['counter', 'prevBtn', 'nextBtn'].forEach(function(id){
@@ -179,6 +207,21 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1b2326}
     if (d.getElementById('startGate')) return true;
     var c = d.getElementById('contents'); if (c && c.classList.contains('open')) return true;
     return !!d.querySelector('.lxScreen.on,#blackout.on,#whiteout.on,#zoomLayer.on');
+  }
+
+  /* at the deck's first/last slide, would this key only take the build onto a slide outside the deck?
+     (the build would move there and be sent back, replaying the slide's entry animation) — judged by the
+     build's own Reveal all / Hide all button */
+  function atDeckEdge(B, dir){
+    if (B !== active || (dir > 0 ? pos !== DECK.length - 1 : pos !== 0)) return false;
+    var i = B.cur();
+    if (dir > 0 ? i >= B.slides.length - 1 : i <= 0) return false;   // build's own end: the build does nothing anyway
+    if (overlayOn(B)) return false;
+    var s = B.slides[i];
+    if (s.hasAttribute('data-click')) return false;                   // CLICK steps: let the build decide
+    var rb = B.d.getElementById('revealBtn'), rt = rb ? rb.textContent : '';
+    if (dir > 0) return !/reveal all/i.test(rt);                      // nothing left to reveal
+    return !s.querySelector('.shown') && !/hide all/i.test(rt);       // nothing to hide
   }
 
   /* jump a build to one of its slides through its own Contents list (= the build's own go) */
