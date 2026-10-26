@@ -14,6 +14,28 @@ Ready-to-teach decks for **cover teachers**, made by combining specific slides f
 - `_shared/paint-wipe/paint-wipe.js` — the transition (shared by every deck). `demo.html` shows it stand-alone.
 - Classes: G9 = 9A1, 9A2, 9A3; G10 = 10A1.
 
+## Core files (already in the repo — reuse, don't rebuild)
+
+### `index.html` — Cover Lessons landing page
+- Navy + gold (LESSONS) blended with night purple + pink (INCLASS); Source Serif 4 headings, Source Sans 3 body; `noindex`.
+- Header (crest, "Mr. Rich · IGCSE ESL · Cover teachers", "Cover Lessons"), short lead, gold/pink stripe, 3-step "how to use" strip for cover teachers, then Grade 9 and Grade 10 sections, footer link to the transition demo.
+- **Only edit the `DECKS` array** to add or change decks. Entry format:
+  `{ grade:"G9", title:"Food: review lesson", classes:"9A1, 9A2", minutes:45, url:"G9/food-review/", sources:[{repo:"LESSONS", name:"G9 Unit 3 Food"}, {repo:"INCLASS", name:"Speaking Circle"}] }`
+- Cards render automatically per grade (count pill, gold-accented LESSONS chips, pink INCLASS chips); an empty grade shows "No cover lessons for Grade X yet."
+
+### `_shared/paint-wipe/paint-wipe.js` — the transition module
+- Load once per deck: `<script src="../../_shared/paint-wipe/paint-wipe.js"></script>`.
+- API: `PaintWipe.run({ from, to, label, sub, font, onCover })` → Promise. `from`/`to` = build colours (hex), `label`/`sub` = text painted mid-transition, `onCover` = swap to the incoming slide (may return a Promise, e.g. wait for a build to load). `PaintWipe.busy` is true while running.
+- Built-in: 6 strokes per pass, each pre-rendered with lit top / shaded bottom, bristle streaks, dry-brush edges, ragged bristle tip and splatter; slight tilt per stroke; RTL pass mirrored; eraser pass uses `destination-out`; canvas fades out at the end. Timing constants at the top (`T_COVER`, `T_PAINT`, `T_ERASE`, `STAGGER`, `LABEL_HOLD`).
+- Blocks keydown/keyup/keypress (capture phase) and clicks while busy; reduced motion → colour fade; canvas resolution capped at 1.25× for classroom PCs.
+- Any change here applies to every deck — re-run `demo.html` after editing.
+
+### `_shared/paint-wipe/demo.html` — stand-alone demo / reference deck player
+- 1920×1080 stage scaled and centred to any screen (`translate(-50%,-50%) scale(s)`), bottom bar (source label, Back, counter, Next), → / Space / PageDown next, ← / PageUp back.
+- 5 sample slides from 3 mock builds (LESSONS navy, INCLASS purple, light cream unit) to show: same build → normal 0.45 s fade; different build → paint wipe; light colour → dark label ink.
+- Shows the deck pattern to copy: a `BUILDS` map (`color`, `label`, `sub` per build), `data-build` on each slide, and a `go(i)` that compares `data-build` of the current and next slide and only calls `PaintWipe.run` when they differ (swapping slides instantly inside `onCover`).
+- A single-file copy (JS inlined) is fine for sharing previews; the repo copy keeps loading `paint-wipe.js`.
+
 ## Rule sync with the source repos
 - Copied slides follow the rules of the repo they came from: **LESSONS → `LESSONS/CLAUDE.md`**, **INCLASS → `INCLASS/CLAUDE.md`**. This file does not repeat those rules.
 - Before every new deck or deck edit, re-read the current `CLAUDE.md` of each source repo used and take slides from that repo's latest `main`. Source rules change; the source repo always wins over an older copy.
